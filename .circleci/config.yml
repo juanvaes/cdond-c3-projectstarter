@@ -1,8 +1,5 @@
 version: 2.1
-
-executors:
-  python:
-    
+   
 
 commands:
   destroy-environment:
@@ -184,13 +181,22 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: Run migrations
+          name: Install aws-cli
+          working_directory: /tmp
           command: |
-            cd ./backend
+            sudo apt-get update && sudo apt-get install -yy less
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+      - run:
+          name: Run migrations
+          working_directory: ./backend
+          command: |
             npm run migrations > log_migration.txt
             cat log_migration.txt
       - run:
           name: Send migration results to memstash
+          working_directory: ./backend
           command: |
             if grep "has been executed successfully" ./backend/log_migration.txt;
             then
