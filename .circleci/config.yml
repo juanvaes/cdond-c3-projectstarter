@@ -139,7 +139,7 @@ jobs:
       - run:
           name: Add backend ip to inventory.txt
           command: |
-            BACKEND_IP=$(curl -H "token: 6f877033-4e1d-4232-a437-2f12d1db95c5" --request GET https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID:0:7}
+            BACKEND_IP=$(curl -H "token: 6f877033-4e1d-4232-a437-2f12d1db95c5" --request GET https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID:0:7})
             echo ${BACKEND_IP} >> ./.circleci/ansible/inventory.txt
             cat ./.circleci/ansible/inventory.txt
       - persist_to_workspace:
