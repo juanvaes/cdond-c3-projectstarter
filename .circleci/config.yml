@@ -328,6 +328,39 @@ jobs:
       - revert-migrations:
           when_to_run: on_fail
 
+  smoke-test:
+    docker:
+      # Lightweight Docker image 
+      - image: python:3.9.0-alpine
+    steps:
+      # Checkout code from git
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update curl nodejs npm
+            pip install awscli
+      - run:
+          name: Backend smoke test.
+          command: |
+            BACKEND_IP=$(curl -H "token: 6f877033-4e1d-4232-a437-2f12d1db95c5" --request GET https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID:0:7})
+            API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+            curl -s "${API_URL}/api/status" -v
+      - run:
+          name: Frontend smoke test.
+          command: |
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-west-2.amazonaws.com"
+            curl -s ${URL} | grep "Welcome"
+            exit 1
+      # Here's where you will add some code to rollback on failure  
+      - destroy-environment:
+          when_to_run: on_fail
+      - revert-migrations:
+          when_to_run: on_fail
+
 workflows:
   default:
     jobs:
@@ -358,3 +391,5 @@ workflows:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
