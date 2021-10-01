@@ -13,7 +13,8 @@ commands:
           name: Destroy environments
           when: << parameters.when_to_run >>
           command: |
-            aws delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" && aws delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
+            aws delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
+            aws delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
 
 jobs:
   build-frontend:
@@ -26,10 +27,9 @@ jobs:
       - run:
           name: Build front-end
           command: |
-            # cd frontend
-            # npm i
-            # npm run build
-            exit 1 
+            cd frontend
+            npm i
+            npm run build
       - save_cache:
           key: frontend-build
           paths: [frontend/node_modules]
