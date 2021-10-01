@@ -1,5 +1,8 @@
 version: 2.1
 
+executors:
+  python:
+    
 
 commands:
   destroy-environment:
@@ -135,6 +138,30 @@ jobs:
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
           when_to_run: on_fail
+
+  configure-infrastructure:
+    docker:
+      - image: python:3.9.0-alpine
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: [3e:a6:56:d0:84:05:53:33:b4:84:8a:8b:2e:48:74:1b]
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+            ansible --version
+      - run:
+          name: Configure server
+          command: |
+            cat ./.circleci/ansible/inventory.txt
+            export ANSIBLE_HOST_KEY_CHECKING=false
+            ansible-playbook -i ./.circleci/ansible/inventory.txt ./.circleci/ansible/configure-server.yml
+      # Here's where you will add some code to rollback on failure 
+      - destroy-environment:
+          when_to_run: on_fail  
 
 workflows:
   default:
