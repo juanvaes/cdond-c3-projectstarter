@@ -128,7 +128,6 @@ jobs:
           name: Add back-end ip to ansible inventory
           command: |
             ls ~/
-            mkdir ansible
             aws ec2 describe-instances --filters "Name=tag:Name,Values=backend-12345" --query "Reservations[].Instances[].PublicDnsName[]" --output text >> ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
