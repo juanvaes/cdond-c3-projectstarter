@@ -105,7 +105,7 @@ jobs:
 
   deploy-infrastructure:
     docker:
-      - image: circleci/aws-cli@2.0.3
+      - image: cibuilds/aws:latest
     steps:
       - checkout
       - run:
