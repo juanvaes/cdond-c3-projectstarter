@@ -27,10 +27,16 @@ commands:
         default: "on_fail"
     steps:
       - run:
-          name: Destroy environments
+          name: Destroy backend environment
           when: << parameters.when_to_run >>
           command: |
             aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
+      - run:
+          name: Destroy frontend environment
+          when: << parameters.when_to_run >>
+          command: |
+            aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            aws s3 rb s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --force
             aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
 
   revert-migrations:
@@ -151,7 +157,7 @@ jobs:
           command: |
             aws cloudformation deploy \
              --template-file .circleci/files/backend.yml \
-             --tags project=udapeople \
+             --tags project=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
@@ -159,7 +165,7 @@ jobs:
           command: |
             aws cloudformation deploy \
              --template-file .circleci/files/frontend.yml \
-             --tags project=udapeople \
+             --tags project=udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
@@ -354,7 +360,6 @@ jobs:
           command: |
             URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-west-2.amazonaws.com"
             curl -s ${URL} | grep "Welcome"
-            exit 1
       # Here's where you will add some code to rollback on failure  
       - destroy-environment:
           when_to_run: on_fail
