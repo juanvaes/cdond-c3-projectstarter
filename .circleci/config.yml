@@ -205,6 +205,7 @@ jobs:
           command: |
             apk add --update ansible
             ansible --version
+      - create-env
       - run:
           name: Configure server
           command: |
@@ -348,6 +349,7 @@ jobs:
           command: |
             apk add --update curl nodejs npm
             pip install awscli
+      - create-env
       - run:
           name: Backend smoke test.
           command: |
