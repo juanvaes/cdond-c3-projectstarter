@@ -33,6 +33,27 @@ commands:
             aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
             aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
 
+  revert-migrations:
+    description: Revert the last migration.
+    parameters:
+      when_to_run:
+        type: string
+        default: "on_fail"
+    steps:
+      - run:
+          name: Revert migrations
+          when: << parameters.when_to_run >>
+          command: |
+            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
+            SUCCESS=$(curl -H "token: 6f877033-4e1d-4232-a437-2f12d1db95c5" --request GET https://api.memstash.io/values/migration-status-${CIRCLE_WORKFLOW_ID:0:7})
+            echo $SUCCESS
+            if(( "$SUCCESS"=="1" )); 
+            then
+              cd ./backend
+              npm install
+              npm run migrations:revert
+            fi
+
 jobs:
   build-frontend:
     docker:
@@ -228,6 +249,53 @@ jobs:
      # Here's where you will add some code to rollback on failure
       - destroy-environment:
           when_to_run: on_fail
+
+  deploy-frontend:
+    docker:
+      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
+    steps:
+      # Checkout code from git
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            yum install -y tar gzip curl
+            curl -sL https://rpm.nodesource.com/setup_10.x | bash -
+            yum install -y nodejs
+      - attach_workspace:
+          at: .
+      - run:
+          name: Get backend url
+          command: |
+            BACKEND_IP=$(curl -H "token: 6f877033-4e1d-4232-a437-2f12d1db95c5" --request GET https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID:0:7})
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+            echo ENVIRONMENT=production > "frontend/.env"
+            echo API_URL=${API_URL} >> "frontend/.env"
+            cat frontend/.env
+      - run:
+          name: Build frontend application
+          command: |
+            cd ./frontend
+            pwd
+            npm i
+            npm run build
+      - run:
+          name: Deploy frontend objects
+          command: |
+            aws s3 cp ./dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./frontend/dist
+      # Here's where you will add some code to rollback on failure
+      - destroy-environment:
+          when_to_run: on_fail
+      - revert-migrations:
+          when_to_run: on_fail
+      
+
 workflows:
   default:
     jobs:
@@ -254,3 +322,5 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
