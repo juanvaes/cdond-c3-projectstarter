@@ -177,7 +177,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build-cache]
+          keys: [backend-build]
       - attach_workspace:
           at: .
       - run:
@@ -192,6 +192,7 @@ jobs:
           name: Run migrations
           working_directory: ./backend
           command: |
+            ls -la
             npm run migrations > log_migration.txt
             cat log_migration.txt
       - run:
