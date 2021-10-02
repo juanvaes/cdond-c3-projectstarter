@@ -320,16 +320,18 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible curl rsync openssh nodejs npm
+            apk add --update ansible curl rsync openssh nodejs npm openssh-client
+            apk add --no-cache --upgrade bash
             pip install awscli
       - create-env
       - run:
           name: Deploy backend
           command: |
             pwd
+            ls -la
+            tar czf backend.tar.gz backend/
             export ANSIBLE_HOST_KEY_CHECKING=false
-            cat ./.circleci/ansible/inventory.txt
-            ansible-playbook -i ./.circleci/ansible/inventory.txt ./.circleci/ansible/deploy-backend.yml -vv
+            ansible-playbook -i ./.circleci/ansible/inventory.txt ./.circleci/ansible/deploy-backend.yml -vvv
       # Here's where you will add some code to rollback on failure  
       - destroy-environment:
           when_to_run: on_fail
