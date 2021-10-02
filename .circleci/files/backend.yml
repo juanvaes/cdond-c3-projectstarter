@@ -35,3 +35,10 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub backend-${ID}
+
+Outputs:
+  WorkflowId:
+    Description: Current stack id
+    Value: ${ID}
+    Export:
+      Name: WorkflowId
