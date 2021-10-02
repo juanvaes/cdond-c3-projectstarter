@@ -39,6 +39,6 @@ Resources:
 Outputs:
   WorkflowId:
     Description: Current stack id
-    Value: !Sub ${ID}
+    Value: WorkflowId
     Export:
-      Name: WorkflowId
+      Name: !Sub ${ID}
