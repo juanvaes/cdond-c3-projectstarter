@@ -9,12 +9,12 @@
       dest: /home/ubuntu/backendapp
       recursive: true
 
-  - name: "copy node_modules"
-    become: yes
-    synchronize:
-      src: ../../backend/node_modules
-      dest: /home/ubuntu/backendapp
-      recursive: true
+  - name: Build backend
+    ignore_errors: yes
+    shell: |
+      cd /home/ubuntu/backendapp
+      npm i
+      npm run build
 
   - name: "delete anything that might already be running"
     become: true
