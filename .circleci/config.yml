@@ -83,8 +83,6 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - restore_cache:
-          keys: [backend-build]
       - run:
           name: Build back-end
           command: |
@@ -94,10 +92,6 @@ jobs:
       - save_cache:
           key: backend-build
           paths: [backend/node_modules]
-      - persist_to_workspace:
-          root: .
-          paths:
-            - backend/dist
 
   test-frontend:
     docker:
@@ -231,14 +225,6 @@ jobs:
           at: .
       - create-env
       - run:
-          name: Install aws-cli
-          working_directory: /tmp
-          command: |
-            sudo apt-get update && sudo apt-get install -yy less
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-      - run:
           name: Run migrations
           working_directory: ./backend
           command: |
@@ -328,8 +314,9 @@ jobs:
           name: Deploy backend
           command: |
             pwd
-            ls -la
             tar czf backend.tar.gz backend/
+            ls -la
+            ls -la backend
             export ANSIBLE_HOST_KEY_CHECKING=false
             ansible-playbook -i ./.circleci/ansible/inventory.txt ./.circleci/ansible/deploy-backend.yml -vvv
       # Here's where you will add some code to rollback on failure  

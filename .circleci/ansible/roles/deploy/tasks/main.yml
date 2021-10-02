@@ -17,6 +17,7 @@
     cd /home/ubuntu/backend
     npm i
     npm run build
+
 - name: Stop and delete already running server
   become: true
   ignore_errors: yes
