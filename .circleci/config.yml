@@ -407,14 +407,19 @@ jobs:
             echo "OLD_W_ID=$OLD_W_ID"
             echo "CURRENT_W_ID=$CURRENT_W_ID"
 
-            if [[ "$CURRENT_W_ID" != "$OLD_W_ID" ]]
+            if [ -z "$OLD_W_ID" ]
             then
-              echo "$OLD_W_ID != $CURRENT_W_ID: Deleting old stack id"
-              aws s3 rm "s3://udapeople-${OLD_W_ID} --recursive"
-              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OLD_W_ID}"
-              aws cloudformation delete-stack --stack-name "udapeople-backend-${OLD_W_ID}"
-            else
-              echo "$OLD_W_ID == $CURRENT_W_ID: Nothing to delete"
+                echo "No OLD_W_ID found, nothing to cleanup."
+            else 
+                if [[ "$CURRENT_W_ID" != "$OLD_W_ID" ]]
+                then
+                    echo "$OLD_W_ID != $CURRENT_W_ID: Deleting old stack id"
+                    aws s3 rm "s3://udapeople-${OLD_W_ID} --recursive"
+                    aws cloudformation delete-stack --stack-name "udapeople-frontend-${OLD_W_ID}"
+                    aws cloudformation delete-stack --stack-name "udapeople-backend-${OLD_W_ID}"
+                else
+                  echo "$OLD_W_ID == $CURRENT_W_ID: Nothing to delete"
+                fi
             fi
 
 workflows:
