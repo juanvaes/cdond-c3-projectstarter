@@ -1,10 +1,6 @@
 
 ---
-- name: upgrade npm
-  become: true
-  shell: |
-    npm install -g npm@latest
-    
+   
 - name: Copy compiled files
   unarchive:
     src: /root/project/backend.tar.gz
