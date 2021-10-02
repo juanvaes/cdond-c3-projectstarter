@@ -10,6 +10,7 @@
       recursive: true
 
   - name: Build backend
+    become: true
     ignore_errors: yes
     shell: |
       cd /home/ubuntu/backendapp
