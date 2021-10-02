@@ -374,9 +374,9 @@ jobs:
           name: Send old workflow id to memstash
           working_directory: ./.circleci/files
           command: |
-            OLD_W_ID=$(aws cloudformation list-exports \
-                       Exports[?Name==\`WorkflowID\`].Value" \
-                       --no-paginate --output text)
+            OLD_W_ID=$(aws cloudformation \
+              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+              --no-paginate --output text)
             echo "OLD_W_ID=${OLD_W_ID}"
             curl -H "Content-Type: text/plain" -H "token: 6f877033-4e1d-4232-a437-2f12d1db95c5" --request PUT --data "$OLD_W_ID" https://api.memstash.io/values/OLD_W_ID
       - run:
