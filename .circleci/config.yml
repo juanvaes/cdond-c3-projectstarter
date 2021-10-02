@@ -94,6 +94,10 @@ jobs:
       - save_cache:
           key: backend-build
           paths: [backend/node_modules]
+      - persist_to_workspace:
+          root: .
+          paths:
+            - backend/dist
 
   test-frontend:
     docker:
